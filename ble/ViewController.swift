@@ -212,8 +212,9 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralMa
             print("error")
             return
         }
-        let file = "/" + date + ".csv"
-        saveFile(filePathName: file, fileData: fileData)
+        let folder = "/" + date
+        let file = folder + "/" + date + ".csv"
+        saveFile(filePathName: file, folderPathName: folder, fileData: fileData)
     }
     
     func createArray(temperature: Float, humidity: Float, pressure: Float){
@@ -258,11 +259,13 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralMa
         }
     }
     
-    func saveFile(filePathName: String, fileData: Data) {
+    func saveFile(filePathName: String, folderPathName: String, fileData: Data) {
         guard let client = DropboxClientsManager.authorizedClient else {
             print("client error")
             return
         }
+        
+        let folder = client.files.createFolderV2(path: folderPathName)
         let _ = client.files.upload(path: filePathName, mode: .add, autorename: false, clientModified: nil, mute: false, input: fileData).response { response, error in
             if let metadata = response {
                 print("Uploaded file name: \(metadata.name)")
